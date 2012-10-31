@@ -1,0 +1,7 @@
+node_modules
+test/*.js
+test/*.css
+components
+build
+*.sublime-project
+*.sublime-workspace

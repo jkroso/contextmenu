@@ -1,0 +1,33 @@
+.menu .item {
+	list-style: none;
+	position: relative;
+	padding: 8px 20px;
+	vertical-align: middle;
+	border-top-width:1px;
+	border-top-style: solid;
+	border-color: rgba(0,0,0,.1);
+}
+.menu .item:first-of-type {
+	border-top-right-radius: 3px;
+	border-top-left-radius: 3px;
+	border-top: none;
+}
+.menu .item:last-of-type {
+	border-bottom-right-radius: 3px;
+	border-bottom-left-radius: 3px;
+}
+.menu .item .icon {
+	display: inline-block;
+	margin-right: 10px;
+}
+.menu .item .icon img {
+	height: 14px;
+	width: 14px;
+}
+.menu .item .title {
+	display: inline-block;
+}
+.menu .item.selected {
+	background: #4297FF;
+  	background: -webkit-linear-gradient(top, #6FAFFF, #4297FF);
+}

@@ -1,0 +1,78 @@
+<html>
+    <head>
+        <title>ContextMenu</title>
+        <script type="text/javascript" src="./vendor/handlebars.runtime-1.0.rc.1.js"></script>
+        <script type="text/javascript" src="./vendor/jquery-1.8.2.js"></script>
+        <script type="text/javascript" src="../dist/ContextMenu.js"></script>
+    </head>
+    <body>
+    	<div id="target" style="width:100px;height:100px;border:1px solid;margin:100px;"></div>
+        <script type="text/javascript">
+        function log (e) {
+            console.log(e)
+        }
+        
+        $('body')
+            .on('cut', log)
+            .on('edit-page/add', log)
+            .on('item-2', log)
+            .on('item-3', log)
+            .on('item-a', log)
+            .on('item-b', log)
+            .on('item-c', log)
+
+        setTimeout(function () {
+            new ContextMenu(document.body)
+                .item('Cut', './images/cut.png')
+                .item('item 2')
+                .item('item 3')
+                .submenu(300)
+                    .title('Edit Page')
+                    .icon('./images/page_white_edit.png')
+                    .newItem()
+                        .title('Add')
+                        .icon('./images/page_white_add.png')
+                        .insert()
+                    .newItem()
+                        .title('Copy')
+                        .icon('./images/page_white_copy.png')
+                        .insert()
+                    .newItem()
+                        .title('Delete')
+                        .icon('./images/page_white_delete.png')
+                        .insert()
+                    .done()
+                .item('Paste', './images/page_white_paste.png')
+                .item('Exit', './images/door.png')
+                .fixWidth()
+                .measure()
+                .target(210, 100)
+                .bind()
+                .show()
+                .focus()
+        }, 100)
+
+        $('#target').on('contextmenu', function (e) {
+            e.preventDefault()
+            ContextMenu.clear()
+            ContextMenu.new(document.body)
+                .item('Cut', './images/cut.png')
+                .submenu('Submenu a')
+                    .item('item b')
+                    .item('item c')
+                    .item('item d')
+                    .item('item e')
+                    .done()
+                .item('item 3')
+                .submenu('Edit Page', './images/page_white_edit.png')
+                    .item('Add', './images/page_white_add.png')
+                    .item('Copy', './images/page_white_copy.png')
+                    .item('Delete', './images/page_white_delete.png')
+                    .done()
+                .item('Paste', './images/page_white_paste.png')
+                .item('Exit', './images/door.png')
+                .done(e.clientX, e.clientY)
+        })
+        </script>
+    </body>
+</html>

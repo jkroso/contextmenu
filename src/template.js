@@ -1,0 +1,1 @@
+module.exports = '<a href="" class="contextmenu"></a>'

@@ -1,0 +1,1 @@
+module.exports = '<div class="item"><div class="icon"></div><div class="title"></div></div>'

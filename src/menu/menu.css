@@ -1,0 +1,17 @@
+.menu {
+	-webkit-user-select:none;
+	background: white;
+	color:rgb(60,60,60);
+	font-size: 13px;
+	font-family: arial;
+	border:1px solid rgba(0,0,0,.4);
+}
+.menu>.lens {
+	position: absolute;
+	left:0;
+	right:0;
+	background: #D9EAFF;
+	background: -webkit-linear-gradient(top, #D2E7FF, #9BC8FF);
+	transition: top 60ms ease-in;
+	-webkit-transition: top 100ms ease-out;
+}

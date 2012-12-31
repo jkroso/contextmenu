@@ -1,0 +1,29 @@
+{
+  "name": "context-menu",
+  "version": "0.0.1",
+  "dependencies": {
+    "jkroso/domify": "*",
+    "component/classes": "*",
+    "jkroso/emitter": "*",
+    "jkroso/event-manager": "*",
+    "component/css": "*",
+    "jkroso/enumerable": "*",
+    "jkroso/satellite": "*",
+    "jkroso/computed-style": "*",
+    "jkroso/position": "*"
+  },
+  "scripts": [
+    "src/menu/index.js",
+    "src/menu/item/index.js",
+    "src/menu/template.js",
+    "src/menu/item/template.js",
+    "src/index.js",
+    "src/template.js"
+  ],
+  "styles": [
+    "src/menu/item/item.css",
+    "src/menu/menu.css",
+    "src/contextmenu.css"
+  ],
+  "main": "src/index.js"
+}

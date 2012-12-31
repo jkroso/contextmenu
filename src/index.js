@@ -1,307 +1,337 @@
-var $ = require('jquery'),
-    _ = require('underscore'),
-    Tip = require('Tip'),
-    Item = require('./item/index')
+var Menu = require('./menu')
+  , EventManager = require('event-manager')
+  , domify = require('domify')
+  , classes = require('classes')
+  , position = require('position')
 
-require('./menu.css').init()
+module.exports = ContextMenu
 
-module.exports = Menu
-
-function Menu (target) {
-    // Register the instance
-    Menu.instances.push(this)
-    // Events will be fired on this node
-    this.targetNode = target
-    this.classname = 'menu'
-    this.content = document.createElement('div')
-    this.$content = $(this.content).append(this.template()).addClass('menu')
-    Tip.call(this, this.content)
-    this.place('north east')
-    this.items = []
+/**
+ * Create a new ContextMenu
+ *
+ *   new ContextMenu(document.body)
+ *   
+ * @param {Element} target where to send the command
+ * @return {ContextMenu}
+ */
+function ContextMenu (target) {
+	ContextMenu.instances.push(this)
+	this.targetNode = target
+	this.view = domify(require('./template'))[0]
+	this.classList = classes(this.view)
+	this.events = new EventManager(this.view, this)
+	this.events.on('keydown')
+	this.events.on('mousedown')
+	this.events.on('hover .item')
+	this.events.on('leave .item')
+	this.events.on('click')
+	this.events.on('mouseover', 'activate')
+	this.events.on('focusin')
+	this.events.on('focusout')
+	this.events.on('focused .item')
+	this.events.on('blurred .item')
+	this.menu = new Menu()
+		.appendTo(this.view)
+		.orbit(this.view)
+	this.menu.parent = this
 }
 
-Menu.instances = []
-// Destroy all active menus
-Menu.clear = function () {
-    Menu.instances.forEach(function (menu) {
-        menu.remove()
-    })
-    Menu.instances.length = 0
-}
-// Alternative constructor
-Menu.new = function (target) {
-    return new(this)(target)
-}
+/**
+ * Holds all instances
+ */
+ContextMenu.instances = []
 
-// Inherit from Tip
-Menu.prototype = Object.create(Tip.prototype, {constructor:{value:Menu}})
-
-Menu.prototype.template = require('./menu.hbs')
-
-Menu.prototype.newItem = function () {
-    return new Item(this)
+/**
+ * Remove all instances from the display
+ */
+ContextMenu.clear = function () {
+	ContextMenu.instances.forEach(function (menu) {
+		menu.remove()
+	})
+	ContextMenu.instances.length = 0
 }
 
-Menu.prototype.domEvents = {
-    keydown : function (e) {
-        // Stop scrolling
-        e.preventDefault()
-        switch (e.which) {
-        case 40:
-            this.down()
-            break
-        case 38:
-            this.up()
-            break
-        case 37: // left
-            this.transferFocus('left')
-            break
-        case 39: // right
-            this.transferFocus('right')
-            break
-        case 13:
-            this.toggleSelect(e)
-            break
-        }
-    },
-    mousedown : function (e) {
-        if (!this.$el.hasClass('hasFocus')) this.focus()
-        else this.toggleSelect()
-        // Stop it from loosing focus
-        e.preventDefault()
-    },
-    mousemove : function (e) {
-        var target = e.target
-        var self = this
-        this.$content.children('.item').each(function () {
-            if ($(this).is(target) || $(this).find(target).length) {
-                // self.moveFocus(this)
-                var item = _.find(self.items, function (item) {
-                    return item.view === this
-                }, this)
-                var now = self.getFocused()
-                if (item !== now) {
-                    item.focus()
-                    now && now.blur()
-                }
-            }
-        })
-    },
-    mouseenter : function (e) {
-        if (!this.$el.hasClass('hasFocus')) this.focus()
-    },
-    mouseleave : function (e) {
-        this.items.forEach(function (item) {
-            if (item.isFocused()) item.blur()
-        })
-        this.hideLens()
-    },
-    focusin : function (e) {
-        this.$el.addClass('hasFocus')
-        console.log('focus in')
-    },
-    focusout : function (e) {
-        this.$el.removeClass('hasFocus')
-        console.log('focus out')
-    }
+/**
+ * Alternative constructor syntax
+ */
+ContextMenu.new = function (target) {
+	return new this(target)
 }
 
-Menu.prototype.bind = function() {
-    var evts = this.domEvents
-    this.domEvents = {}
-    for (var type in evts) {
-        this.$el.on(type, this.domEvents[type] = evts[type].bind(this))
-    }
-    return this
+var proto = ContextMenu.prototype;
+
+/**
+ * Forward the item menu building functions on to the menu
+ */
+proto.item = function () {
+	this.menu.item.apply(this.menu, arguments)
+	return this
+}
+proto.submenu = function () {
+	return this.menu.submenu.apply(this.menu, arguments)
 }
 
-Menu.prototype.unbind = function () {
-    for (var type in this.domEvents) {
-        this.$el.off(type, this.domEvents[type])
-    }
-    delete this.domEvents
-    return this
+/**
+ * Handle an item being focused
+ */
+proto.onFocused = function (e) {
+	e.view.menu && e.view.open()
 }
 
-Menu.prototype.up = function () {
-    var now = this.getFocused()
-    if (now && now instanceof Submenu) {
-        if (now.getFocused()) {
-            now.navigate('up')
-            return this
-        }
-    }
-    return this.navigate('up')
+/**
+ * Handle an item loosing focus
+ */
+proto.onBlurred = function (e) {
+	e.view.menu && e.view.close()
 }
 
-Menu.prototype.down = function () {
-    var now = this.getFocused()
-    if (now && now instanceof Submenu) {
-        if (now.getFocused()) {
-            now.navigate('down')
-            return this
-        }
-    }
-    return this.navigate('down')
+/**
+ * Handle the mouse entering an item
+ */
+proto.onHover = function (e) {
+	var top = e.view.parent.focusedItem()
+	// If an item in the current menu is selected...
+	if (top) {
+		// ... blur it and all its children
+		var focusedItems = this.getFocused()
+		  , i = focusedItems.length
+		while (i--) {
+			var focused = focusedItems[i]
+			focused.blur()
+			if (focused === top) break
+		} 
+	}
+	e.view.focus()
 }
 
-Menu.prototype.transferFocus = function (direction) {
-    var now = this.getFocused()
-    if (now && now instanceof Submenu) {
-        // The submenu has opened to the right
-        if (now.$content.offset().left > now.$el.offset().left) {
-            now[direction === 'right' ? 'open' : 'close'](direction)
-        } else {
-            now[direction === 'left' ? 'open' : 'close'](direction)
-        }
-    }
+/**
+ * Handle the mouse leaving an item
+ */
+proto.onLeave = function (e) {
+	e.view.blur()
 }
 
-Menu.prototype.open = function (direction) {
-    var now = this.getFocused()
-    if (now && now instanceof Submenu) {
-        now.open()
-    }
+/**
+ * Translate the keypress into a command
+ */
+proto.onKeydown = function (e) {
+	// Stop scrolling and page refreshes
+	e.preventDefault()
+	switch (e.which) {
+		// down
+		case 40: return this.down()
+		// up
+		case 38: return this.up()
+		// left
+		case 37: return this.navigate('left')
+		// right
+		case 39: return this.navigate('right')
+		// enter
+		case 13: return this.toggleSelect()
+	}
 }
 
-Menu.prototype.close = function (direction) {
-    var now = this.getFocused()
-    if (now && now instanceof Submenu) {
-        now.close()
-    }
+/**
+ * Prevent default behaviors
+ */
+proto.onClick =
+proto.onMousedown = function (e) {
+	e.preventDefault()
 }
 
-Menu.prototype.navigate = function (direction) {
-    var now = this.getFocused(), next
-    if (now) {
-        next = this.items[this.items.indexOf(now) + (direction === 'up' ? -1 : 1)]
-    } else {
-        next = direction === 'up' ? this.items[this.items.length - 1] : this.items[0]
-    }
-    if (next) {
-        next.focus()
-        now && now.blur()
-    }
-    return this
+/**
+ * Check if the ContextMenu is currently focused and therefore receiving events
+ * @return {Boolean}
+ */
+proto.hasFocus = function () {
+	return this.classList.has('focused')
 }
 
-Menu.prototype.toggleSelect = function() {
-    var now = this.getFocused()
-    if (now) now.toggleSelect()
-    return this
+/**
+ * Transfer focus to the item being hovered over
+ */
+proto.onMouseover = function (e) {
+	var target = e.delegateTarget
+
+	if (target && target !== this.focusedItem())
+		target.focus()
 }
 
-Menu.prototype.getFocused = function () {
-    return _.find(this.items, function (item) {
-        return item.isFocused()
-    })
+/**
+ * Set focus state
+ */
+proto.onFocusin = function (e) {
+	if (!this.focusedItem) this.focusedItem = this.menu.list.at(0)
+	this.classList.add('focused')
+	console.log('focus in')
 }
 
-// Must prevent the focus event causing the browser to scroll
-Menu.prototype.focus = function () {
-    var x = window.scrollX, y = window.scrollY
-    this.$content.find('.key-bait').focus()
-    window.scrollTo(x, y)
-    return this
+/**
+ * Remove focus state
+ */
+proto.onFocusout = function (e) {
+	this.classList.remove('focused')
+	console.log('focus out')
 }
 
-Menu.prototype.blur = function () {
-    // this.$el.removeClass('hasFocus')
-    this.$content.find('.key-bait').blur()
-    // No need to actually blur the key-bait element
-    return this
+/**
+ * Get the most focused item
+ * @return {Item}
+ */
+proto.focusedItem = function () {
+	var list = this.getFocused()
+	return list[list.length - 1]
 }
 
-Menu.prototype.item = function(title, icon) {
-    var item = this.newItem()
-    if (typeof title === 'string') {
-        item.title(title)
-        if (icon) item.icon(icon)
-    // Options object
-    } else {
-        item.title(title.title)
-        if (title.icon) item.icon(title.icon)
-    }
-    return item.insert()
+/**
+ * Get the most focused menu
+ */
+proto.focusedMenu = function () {
+	var item = this.focusedItem()
+	return item && item.parent
 }
 
-Menu.prototype.add = function (item) {
-    this.items.push(item)
-    item.on('focus', function () {
-            this.moveLens(item)
-        }, this)
-        .on('blur', function () {
-            if(!this.getFocused()) this.hideLens()
-        }, this)
-        .on('select', function () {
-            $(this.targetNode).trigger(item
-                .$el
-                .find('.title')
-                .text()
-                .toLowerCase()
-                .trim()
-                .replace(/\s+/, '-'))
-            this.remove()
-        }, this)
-    this.$content.append(item.view)
-    return this
+/**
+ * List all Items that are in a focused state
+ * @return {Array} of Items
+ */
+proto.getFocused = function () {
+	var menu = this.menu
+	var res = []
+	while (menu) {
+		var item = menu.focusedItem()
+		if (!item) break
+		res.push(item)
+		menu = item.menu
+	}
+	return res
 }
 
-Menu.prototype.moveLens = function (item) {
-    var target = item.view
-    this.$content.children('.focus-lens').css({
-        display: 'block',
-        top: target.offsetTop,
-        height: target.offsetHeight
-    })
-    return this
+/**
+ * Shift focus to the item above the currently focused one
+ */
+proto.up = function () {
+	this.focusedMenu().prev()
 }
 
-Menu.prototype.hideLens = function () {
-    this.$content.find('.focus-lens').hide()
-    return this
+/**
+ * Shift focus to the item below the currently selected one
+ */
+proto.down = function () {
+	this.focusedMenu().next()
 }
 
-Menu.prototype.fixWidth = function (width) {
-    if (!width) width = this.$content.css('width')
-    this.$content.css('width', width)
-    return this
+/**
+ * Convert a left or right command into the appropriate action
+ * @param {String} direction of the command
+ */
+proto.navigate = function (direction) {
+	var item = this.focusedItem()
+	// Is there a submenu available
+	if (item.menu && item.menu.isVisible()) {
+		// if the submenu is to the right of the currently focused item...
+		if (position(item.menu.view).left >= position(item.view).left) {
+			// ...then a right button push would be the user trying to navigate to it
+			if (direction === 'right') {
+				item.menu.focus()
+			}
+			// ...and a left key down would be the user trying to navigate up
+			else
+				if (item.parent !== this.menu) item.blur()
+		} 
+		// otherwise it must be open to the left of the focused item...
+		else {
+			// ...then a right key down will be interpreted as the user trying to hide it
+			if (direction === 'right') {
+				if (item.parent !== this.menu) item.blur()
+			}
+			// ...and a left key down would be the user trying navigate to it
+			else
+				item.menu.focus()
+		}
+	}
+	else {
+		var menu = item.parent
+		var parentMenu = menu.parent
+		// If the focused menu is to the right of its parent
+		if (position(menu.view).left >= position(parentMenu.view).left) {
+			// then we interpret a right key as request to show any submenus that might exist
+			if (direction === 'right') {
+				if (item.menu) item.menu.show()
+			}
+			// and a left key as a request to navigate up the menu tree
+			else
+				if (menu !== this.menu) {
+					item.blur()
+				}
+		}
+		// otherwise it'll be opened to the left
+		else {
+			// so a right will be navigating up the menu tree
+			if (direction === 'right') {
+				if (item.parent !== this.menu) {
+					item.blur()
+				}
+			}
+			// and a left key will be looking for submenus
+			else
+				if (item.menu) item.menu.show()
+		}
+	}
 }
 
-Menu.prototype.submenu = function (title, icon) {
-    var menu = new Submenu(this)
-    if (title) menu.title(title)
-    if (icon) menu.icon(icon)
-    return menu
+/**
+ * Ensure the ContextMenu has keyboard focus so it can receive keyboard events
+ * @return {Self}
+ */
+proto.activate = function () {
+	if (!this.hasFocus()) {
+		var x = window.scrollX
+		  , y = window.scrollY
+		this.view.focus()
+		// To prevent the focus event causing scrolling
+		window.scrollTo(x, y)
+	}
+	return this
 }
 
-Menu.prototype.done = function (x, y) {
-    if (x) this.target.apply(this, arguments)
-    return this
-        .fixWidth()
-        .measure()
-        .bind()
-        .show()
-        .focus()
+/**
+ * Remove focus so the ContextMenu no longer receives keyboard events
+ * @return {Self}
+ */
+proto.deactivate = function () {
+	this.view.blur()
+	return this
 }
 
-Menu.prototype.removeOnBlur = function() {
-    $(window).on('mousedown', function blur (e) {
-        if (!e.isDefaultPrevented()) {
-            this.remove()
-            $(window).off('mousedown', blur)
-        }
-    }.bind(this))
-    return this
+/**
+ * Toggle the selection state of the currently focused item
+ */
+proto.toggleSelect = function () {
+	this.focusedItem().toggleSelect()
 }
 
-Menu.prototype.remove = function() {
-    Tip.prototype.remove.call(this)
-    this.items.forEach(function (item) {
-        item.remove()
-    })
-    return this
+/**
+ * Insert the context menu and show it
+ */
+proto.show = function (x, y) {
+	document.body.appendChild(this.view)
+	if (x != null) this.target.apply(this, arguments)
+	this.menu.show()
+	this.menu.focus()
+	this.activate()
 }
 
-// This dependency is circular so need to allow Menu to fully initialize before requiring it
-var Submenu = require('./submenu/index')
+proto.target = function (x, y) {
+	this.view.style.left = x+'px'
+	this.view.style.top = y+'px'
+}
+
+/**
+ * Terminate the ContextMenu
+ */
+proto.remove = function () {
+	this.deactivate()
+	this.events.clear()
+	this.view.parentElement.removeChild(this.view)
+}

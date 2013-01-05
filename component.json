@@ -4,8 +4,8 @@
   "dependencies": {
     "jkroso/domify": "*",
     "component/classes": "*",
-    "jkroso/emitter": "*",
-    "jkroso/event-manager": "*",
+    "jkroso/dom-event": "*",
+    "jkroso/dom-emitter": "*",
     "component/css": "*",
     "jkroso/enumerable": "*",
     "jkroso/satellite": "*",

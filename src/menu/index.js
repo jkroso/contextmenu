@@ -32,15 +32,15 @@ proto.insert = function (item) {
 	this.items.add(item)
 	this.view.appendChild(item.view)
 	var self = this
-	item.events.on('focused', function () {
+	item.on('focused', function () {
 		self.showLens()
 		self.setLens(item)
 	})
-	item.events.on('blurred', function () {
+	item.on('blurred', function () {
 		if (!self.focusedItem())
 			self.hideLens()
 	})
-	this.events.emit('add', {item:item})
+	this.emit('add', {item:item})
 	return this
 }
 

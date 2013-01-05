@@ -1,10 +1,11 @@
 var Menu = require('./menu')
-  , EventManager = require('event-manager')
+  , DomEmitter = require('dom-emitter')
+  , customEvent = require('dom-event').custom
   , domify = require('domify')
   , classes = require('classes')
   , position = require('position')
 
-module.exports = ContextMenu
+exports = module.exports = ContextMenu
 
 /**
  * Create a new ContextMenu
@@ -19,17 +20,18 @@ function ContextMenu (target) {
 	this.targetNode = target
 	this.view = domify(require('./template'))[0]
 	this.classList = classes(this.view)
-	this.events = new EventManager(this.view, this)
-	this.events.on('keydown')
-	this.events.on('mousedown')
-	this.events.on('hover .item')
-	this.events.on('leave .item')
-	this.events.on('click')
-	this.events.on('mouseover', 'activate')
-	this.events.on('focusin')
-	this.events.on('focusout')
-	this.events.on('focused .item')
-	this.events.on('blurred .item')
+	DomEmitter.call(this)
+	this.on('keydown')
+	this.on('mousedown')
+	this.on('hover .item')
+	this.on('leave .item')
+	this.on('click')
+	this.on('mouseover', 'activate')
+	this.on('focusin')
+	this.on('focusout')
+	this.on('focused .item')
+	this.on('blurred .item')
+	this.on('select')
 	this.menu = new Menu()
 		.appendTo(this.view)
 		.orbit(this.view)
@@ -58,7 +60,8 @@ ContextMenu.new = function (target) {
 	return new this(target)
 }
 
-var proto = ContextMenu.prototype;
+var proto = ContextMenu.prototype = Object.create(DomEmitter.prototype)
+proto.constructor = ContextMenu
 
 /**
  * Forward the item menu building functions on to the menu
@@ -68,7 +71,25 @@ proto.item = function () {
 	return this
 }
 proto.submenu = function () {
-	return this.menu.submenu.apply(this.menu, arguments)
+	var menu = this.menu.submenu.apply(this.menu, arguments)
+	var self = this
+	menu.pop = function () {return self}
+	return menu
+}
+
+proto.onSelect = function (e) {
+	var item = e.view
+	var topic = [item.title()]
+	var menu = item.parent
+	while (menu !== this.menu) {
+		item = menu.parent
+		menu = item.parent
+		topic.unshift(item.title())
+	}
+	this.targetNode.dispatchEvent(customEvent(
+		topic.join('/').toLowerCase()
+	))
+	this.remove()
 }
 
 /**
@@ -331,7 +352,9 @@ proto.target = function (x, y) {
  * Terminate the ContextMenu
  */
 proto.remove = function () {
+	var self = this
+	exports.instances = exports.instances.filter(function (i) {return i !== self}) 
 	this.deactivate()
-	this.events.clear()
+	this.clear()
 	this.view.parentElement.removeChild(this.view)
 }

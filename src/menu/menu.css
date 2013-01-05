@@ -12,6 +12,6 @@
 	right:0;
 	background: #D9EAFF;
 	background: -webkit-linear-gradient(top, #D2E7FF, #9BC8FF);
-	transition: top 60ms ease-in;
-	-webkit-transition: top 100ms ease-out;
+	transition: top 70ms ease-in-out;
+	-webkit-transition: top 70ms ease-in-out;
 }

@@ -1,6 +1,6 @@
 var domify = require('domify')
   , classes = require('classes')
-  , EventManager = require('event-manager')
+  , DomEmitter = require('dom-emitter')
 
 module.exports = Item
 
@@ -16,10 +16,10 @@ function Item (menu, options) {
 	this.parent = menu
 	this.view = domify(require('./template'))[0]
 	this.classList = classes(this.view)
-	this.events = new EventManager(this.view, this)
-	this.events.on('mousedown', 'toggleSelect')
-	this.events.on('mouseover')
-	this.events.on('mouseout')
+	DomEmitter.call(this)
+	this.on('mousedown')
+	this.on('mouseover')
+	this.on('mouseout')
 	if (options) {
 		options.title && this.title(options.title)
 		options.icon && this.icon(options.icon)
@@ -29,7 +29,8 @@ function Item (menu, options) {
 /**
  * Inherit from Emitter
  */
-var proto = Item.prototype
+var proto = Item.prototype = Object.create(DomEmitter.prototype)
+proto.constructor = Item
 
 /**
  * Set the item to selected state and emit and event
@@ -37,8 +38,17 @@ var proto = Item.prototype
  */
 proto.select = function () {
 	this.classList.add('selected')
-	this.events.emit('select', {view:this})
+	this.emit('select', {view:this})
 	return this
+}
+
+/**
+ * Mouse down will be interpreted as a select request
+ */
+proto.onMousedown = function (e) {
+	e.stopPropagation()
+	e.preventDefault()
+	this.toggleSelect()	
 }
 
 /**
@@ -46,7 +56,7 @@ proto.select = function () {
  */
 proto.onMouseover = function (e) {
 	if (e.target === this.view && !isIn(e.relatedTarget, this.view))
-		this.events.emit('hover', {view:this})
+		this.emit('hover', {view:this})
 }
 
 /**
@@ -54,7 +64,7 @@ proto.onMouseover = function (e) {
  */
 proto.onMouseout = function (e) {
 	if (e.target === this.view && !isIn(e.relatedTarget, this.view))
-		this.events.emit('leave', {view:this})
+		this.emit('leave', {view:this})
 }
 
 function isIn (child, parent) {
@@ -83,7 +93,7 @@ proto.toggleSelect = function() {
  */
 proto.deselect = function () {
 	this.classList.remove('selected')
-	this.events.emit('deselect', {view:this})
+	this.emit('deselect', {view:this})
 	return this
 }
 
@@ -102,7 +112,7 @@ proto.isSelected = function () {
 proto.focus = function () {
 	if (!this.isFocused()) {
 		this.classList.add('focused')
-		this.events.emit('focused', {view:this})
+		this.emit('focused', {view:this})
 	}
 	return this
 }
@@ -122,7 +132,7 @@ proto.isFocused = function () {
 proto.blur = function() {
 	if (this.isFocused()) {
 		this.classList.remove('focused')
-		this.events.emit('blurred', {view:this})
+		this.emit('blurred', {view:this})
 	}
 	return this
 }
@@ -192,7 +202,7 @@ proto.end = function() {
  * @return {Self}
  */
 proto.remove = function() {
-	this.events.clear()
+	this.clear()
 	return this
 }
 

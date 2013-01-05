@@ -1,5 +1,6 @@
 {
-  "name": "context-menu",
+  "name": "contextmenu",
+  "description": "A contextmenu interface",
   "version": "0.0.1",
   "dependencies": {
     "jkroso/domify": "*",

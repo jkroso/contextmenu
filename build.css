@@ -1,0 +1,76 @@
+.satellite {
+  position: absolute;
+  z-index: 1000;
+}
+
+/* effects */
+
+.satellite.fade {
+  transition: opacity 100ms;
+  -moz-transition: opacity 100ms;
+  -webkit-transition: opacity 100ms;
+}
+
+.satellite-hide {
+  opacity: 0;
+}
+
+
+.menu .item {
+	/*so it can be placed over the lens in the stacking context*/
+	position: relative;
+	padding: 6px 18px;
+	vertical-align: middle;
+	border-bottom-width:1px;
+	border-bottom-style: solid;
+	border-color: rgba(0,0,0,.1);
+	min-width: 70px;
+}
+.menu .item:last-of-type {
+	border-bottom: none;
+}
+.menu .item .icon {
+	display: inline-block;
+	margin-right: 10px;
+}
+.menu .item .icon {
+	height: 14px
+}
+.menu .item .icon img {
+	height: 14px;
+	width: 14px;
+}
+.menu .item .title {
+	height: 14px;
+	display: inline-block;
+}
+.menu .item.selected {
+	background: #4297FF;
+	background: -webkit-linear-gradient(top, #6FAFFF, #4297FF);
+}
+.menu .item .menu {
+	/*to allow for the border width*/
+	margin-top: -1px;
+}
+
+.menu {
+	-webkit-user-select:none;
+	background: white;
+	color:rgb(60,60,60);
+	font-size: 13px;
+	font-family: arial;
+	border:1px solid rgba(0,0,0,.4);
+}
+.menu>.lens {
+	position: absolute;
+	left:0;
+	right:0;
+	background: #D9EAFF;
+	background: -webkit-linear-gradient(top, #D2E7FF, #9BC8FF);
+	transition: top 70ms ease-in-out;
+	-webkit-transition: top 70ms ease-in-out;
+}
+.contextmenu {
+	position: absolute;
+	outline: none;
+}

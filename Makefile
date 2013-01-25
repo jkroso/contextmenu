@@ -1,3 +1,5 @@
+all: build Readme.md
+
 clean:
 	@rm -rf build components
 

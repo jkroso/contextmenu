@@ -49,12 +49,13 @@ proto.insert = function (item) {
  */
 enumerable.implement(NodeList)
 
-/*!
+/**
  * Since the actual Contextmenu node has no size the menus will try and be as skinny 
  * as possible. This is undesirable since menu items should usually not be broken 
  * into several lines. To fix this we must set the menus width explicitly.
  */
-proto.onShow = function () {
+proto.onShow = function (e) {
+	e.stopPropagation()
 	css(this.view, {visibility:'visible'})
 	var max = this.items.max(function (item) {
 		return enumerable(item.view.childNodes).sum(function (child) {
@@ -74,7 +75,8 @@ proto.onShow = function () {
 /**
  * Elements need to be properly hidden in order to prevent events being fired on them unexpectedly
  */
-proto.onHide = function () {
+proto.onHide = function (e) {
+	e.stopPropagation()
 	css(this.view, {visibility:'hidden'})
 }
 

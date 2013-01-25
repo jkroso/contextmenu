@@ -7,7 +7,7 @@
 	<body>
 		<script src="../build/build.js"></script>
 		<script>
-			var ContextMenu = require('context-menu');
+			var ContextMenu = require('contextmenu');
 
 			var menu = new ContextMenu(document.body)
 			menu.item('one', 'images/cut.png')
@@ -30,12 +30,6 @@
 			
 			document.body.addEventListener('one', log)
 			document.body.addEventListener('four', log)
-				// .on('edit-page/add', log)
-				// .on('item-2', log)
-				// .on('item-3', log)
-				// .on('item-a', log)
-				// .on('item-b', log)
-				// .on('item-c', log)
 
 			document.addEventListener('contextmenu', function (e) {
 				e.preventDefault()

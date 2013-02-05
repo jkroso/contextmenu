@@ -1,10 +1,11 @@
 .menu {
 	-webkit-user-select:none;
+	-moz-user-select:none;
 	background: white;
 	color:rgb(60,60,60);
 	font-size: 13px;
 	font-family: arial;
-	border:1px solid rgba(0,0,0,.4);
+	border:1px solid rgba(0,0,0,.2);
 }
 .menu>.lens {
 	position: absolute;

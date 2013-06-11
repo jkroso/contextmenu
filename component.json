@@ -8,10 +8,10 @@
     "jkroso/domify": "0.1.1",
     "jkroso/position": "0.1.0",
     "jkroso/dom-event": "0.3.1",
-    "jkroso/satellite": "0.1.1",
+    "jkroso/satellite": "0.1.2",
     "jkroso/dom-emitter": "0.6.0",
     "jkroso/computed-style": "0.1.0",
-    "component/classes": "1.1.1",
+    "component/classes": "1.1.2",
     "component/css": "0.0.2",
     "component/inherit": "0.0.2",
     "component/max": "1.0.0"

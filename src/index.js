@@ -6,7 +6,7 @@ var Menu = require('./menu')
   , classes = require('classes')
   , domify = require('domify')
 
-exports = module.exports = ContextMenu
+module.exports = ContextMenu
 
 /**
  * Create a new ContextMenu
@@ -433,9 +433,8 @@ ContextMenu.prototype.target = function (x, y) {
 
 ContextMenu.prototype.remove = function () {
 	var self = this
-	exports.instances = exports.instances.filter(function (i) {return i !== self}) 
+	ContextMenu.instances = ContextMenu.instances.filter(function (i) {return i !== self}) 
 	this.deactivate()
-	this.clear()
 	this.view.parentElement.removeChild(this.view)
 	return this
 }

@@ -1,0 +1,36 @@
+<!doctype html>
+<html>
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+		<title>ContextMenu</title>
+		<link rel="stylesheet" href="../build/build.css">
+		<script src="../build/build.js"></script>
+	</head>
+	<body>
+		<script>
+			var ContextMenu = require('contextmenu');
+
+			new ContextMenu(document.body)
+				.item('one', 'images/cut.png')
+				.submenu('four', 'images/door.png')
+					.item('five')
+					.item('six')
+					.submenu('seven')
+						.item('eight')
+						.item('nine')
+						.pop()
+					.submenu('two')
+						.item('three')
+						.pop()
+					.item('three')
+					.show(150,150)
+
+			function log (e) {
+				console.log(e)
+			}
+			
+			document.body.addEventListener('one', log)
+			document.body.addEventListener('four', log)
+		</script>
+	</body>
+</html>

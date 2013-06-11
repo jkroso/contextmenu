@@ -1,7 +1,8 @@
 
-var domify = require('domify')
+var DomEmitter = require('dom-emitter')
   , classes = require('classes')
-  , DomEmitter = require('dom-emitter')
+  , domify = require('domify')
+  , text = require('text')
 
 module.exports = Item
 
@@ -154,14 +155,13 @@ Item.prototype.blur = function() {
  */
 
 Item.prototype.title = function (string) {
-	this.slug = createSlug(string)
 	var title = this.view.querySelector('.title')
 	if (string != null) {
-		title.innerText = string
+		this.slug = createSlug(string)
+		text(title, string)
 		return this
-	}
-	else {
-		return title.innerText
+	} else {
+		return text(title)
 	}
 }
 

@@ -56,34 +56,23 @@ new ContextMenu(document.body)
   .show(100, 100)
 ```
 
-## API  - [ContextMenu()](#contextmenu)
-  - [ContextMenu.instances](#contextmenuinstances)
+## API
+
+  - [ContextMenu()](#contextmenu)
   - [ContextMenu.clear()](#contextmenuclear)
-  - [ContextMenu.new()](#contextmenunew)
   - [ContextMenu.item()](#contextmenuitem)
-  - [ContextMenu.onFocused()](#contextmenuonfocused)
-  - [ContextMenu.onBlurred()](#contextmenuonblurred)
-  - [ContextMenu.onHover()](#contextmenuonhover)
-  - [ContextMenu.onLeave()](#contextmenuonleave)
-  - [ContextMenu.onKeydown()](#contextmenuonkeydown)
-  - [ContextMenu.onMousedown()](#contextmenuonmousedown)
+  - [ContextMenu.submenu()](#contextmenusubmenu)
   - [ContextMenu.hasFocus()](#contextmenuhasfocus)
-  - [ContextMenu.onMouseover()](#contextmenuonmouseover)
-  - [ContextMenu.onFocusin()](#contextmenuonfocusin)
-  - [ContextMenu.onFocusout()](#contextmenuonfocusout)
-  - [ContextMenu.focusedItem()](#contextmenufocuseditem)
-  - [ContextMenu.focusedMenu()](#contextmenufocusedmenu)
-  - [ContextMenu.getFocused()](#contextmenugetfocused)
   - [ContextMenu.up()](#contextmenuup)
   - [ContextMenu.down()](#contextmenudown)
-  - [ContextMenu.navigate()](#contextmenunavigatedirectionstring)
+  - [ContextMenu.navigate()](#contextmenunavigateleftrightstring)
   - [ContextMenu.activate()](#contextmenuactivate)
   - [ContextMenu.deactivate()](#contextmenudeactivate)
-  - [ContextMenu.toggleSelect()](#contextmenutoggleselect)
   - [ContextMenu.show()](#contextmenushow)
+  - [ContextMenu.target()](#contextmenutargetxnumberynumber)
   - [ContextMenu.remove()](#contextmenuremove)
 
-## ContextMenu()
+### ContextMenu()
 
   Create a new ContextMenu
   
@@ -91,102 +80,50 @@ new ContextMenu(document.body)
 new ContextMenu(document.body)
 ```
 
-## ContextMenu.instances
-
-  Holds all instances
-
-## ContextMenu.clear()
+### ContextMenu.clear()
 
   Remove all instances from the display
 
-## ContextMenu.new()
+### ContextMenu.item()
 
-  Alternative constructor syntax
+  add an item
 
-## ContextMenu.item()
+### ContextMenu.submenu()
 
-  Forward the item menu building functions on to the menu
+  create a submenu
 
-## ContextMenu.onFocused()
-
-  Handle an item being focused
-
-## ContextMenu.onBlurred()
-
-  Handle an item loosing focus
-
-## ContextMenu.onHover()
-
-  Handle the mouse entering an item
-
-## ContextMenu.onLeave()
-
-  Handle the mouse leaving an item
-
-## ContextMenu.onKeydown()
-
-  Translate the keypress into a command
-
-## ContextMenu.onMousedown()
-
-  Prevent default behaviors
-
-## ContextMenu.hasFocus()
+### ContextMenu.hasFocus()
 
   Check if the ContextMenu is currently focused and therefore receiving events
 
-## ContextMenu.onMouseover()
-
-  Transfer focus to the item being hovered over
-
-## ContextMenu.onFocusin()
-
-  Set focus state
-
-## ContextMenu.onFocusout()
-
-  Remove focus state
-
-## ContextMenu.focusedItem()
-
-  Get the most focused item
-
-## ContextMenu.focusedMenu()
-
-  Get the most focused menu
-
-## ContextMenu.getFocused()
-
-  List all Items that are in a focused state
-
-## ContextMenu.up()
+### ContextMenu.up()
 
   Shift focus to the item above the currently focused one
 
-## ContextMenu.down()
+### ContextMenu.down()
 
   Shift focus to the item below the currently selected one
 
-## ContextMenu.navigate(direction:String)
+### ContextMenu.navigate(left/right:String)
 
   Convert a left or right command into the appropriate action
 
-## ContextMenu.activate()
+### ContextMenu.activate()
 
   Ensure the ContextMenu has keyboard focus so it can receive keyboard events
 
-## ContextMenu.deactivate()
+### ContextMenu.deactivate()
 
   Remove focus so the ContextMenu no longer receives keyboard events
 
-## ContextMenu.toggleSelect()
-
-  Toggle the selection state of the currently focused item
-
-## ContextMenu.show()
+### ContextMenu.show()
 
   Insert the context menu and show it
 
-## ContextMenu.remove()
+### ContextMenu.target(x:Number, y:Number)
+
+  set location
+
+### ContextMenu.remove()
 
   Terminate the ContextMenu

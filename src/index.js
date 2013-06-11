@@ -40,7 +40,7 @@ function ContextMenu (target) {
 	this.menu.parent = this
 }
 
-/**
+/*!
  * Holds all instances
  */
 
@@ -48,6 +48,7 @@ ContextMenu.instances = []
 
 /**
  * Remove all instances from the display
+ * @api public
  */
 
 ContextMenu.clear = function () {
@@ -58,7 +59,10 @@ ContextMenu.clear = function () {
 }
 
 /**
- * Forward the item menu building functions on to the menu
+ * add an item
+ * 
+ * @return {this}
+ * @api public
  */
 
 ContextMenu.prototype.item = function () {
@@ -68,7 +72,9 @@ ContextMenu.prototype.item = function () {
 
 /**
  * create a submenu
+ * 
  * @return {Menu}
+ * @api public
  */
 
 ContextMenu.prototype.submenu = function () {
@@ -80,7 +86,9 @@ ContextMenu.prototype.submenu = function () {
 
 /**
  * "select" event handler
+ * 
  * @param {Event} e
+ * @api private
  */
 
 ContextMenu.prototype.onSelect = function (e) {
@@ -99,7 +107,8 @@ ContextMenu.prototype.onSelect = function (e) {
 }
 
 /**
- * Handle an item being focused
+ * "focused" event handler
+ * @api private
  */
 
 ContextMenu.prototype.onFocused = function (e) {
@@ -107,7 +116,8 @@ ContextMenu.prototype.onFocused = function (e) {
 }
 
 /**
- * Handle an item loosing focus
+ * "blurred" event handler
+ * @api private
  */
 
 ContextMenu.prototype.onBlurred = function (e) {
@@ -116,6 +126,7 @@ ContextMenu.prototype.onBlurred = function (e) {
 
 /**
  * "hover" event handler
+ * @api private
  */
 
 ContextMenu.prototype.onHover = function (e) {
@@ -135,7 +146,8 @@ ContextMenu.prototype.onHover = function (e) {
 }
 
 /**
- * Handle the mouse leaving an item
+ * "mouseleave" handler
+ * @api private
  */
 
 ContextMenu.prototype.onLeave = function (e) {
@@ -143,7 +155,8 @@ ContextMenu.prototype.onLeave = function (e) {
 }
 
 /**
- * Translate the keypress into a command
+ * "keydown" handler. translates the keypress into a command
+ * @api private
  */
 
 ContextMenu.prototype.onKeydown = function (e) {
@@ -165,6 +178,7 @@ ContextMenu.prototype.onKeydown = function (e) {
 
 /**
  * Prevent default behaviors
+ * @api private
  */
 
 ContextMenu.prototype.onClick =
@@ -173,16 +187,8 @@ ContextMenu.prototype.onMousedown = function (e) {
 }
 
 /**
- * Check if the ContextMenu is currently focused and therefore receiving events
- * @return {Boolean}
- */
-
-ContextMenu.prototype.hasFocus = function () {
-	return this.classList.has('focused')
-}
-
-/**
  * Transfer focus to the item being hovered over
+ * @api private
  */
 
 ContextMenu.prototype.onMouseover = function (e) {
@@ -194,6 +200,7 @@ ContextMenu.prototype.onMouseover = function (e) {
 
 /**
  * Set focus state
+ * @api private
  */
 
 ContextMenu.prototype.onFocusin = function (e) {
@@ -204,6 +211,7 @@ ContextMenu.prototype.onFocusin = function (e) {
 
 /**
  * Remove focus state
+ * @api private
  */
 
 ContextMenu.prototype.onFocusout = function (e) {
@@ -212,8 +220,22 @@ ContextMenu.prototype.onFocusout = function (e) {
 }
 
 /**
+ * Check if the ContextMenu is currently focused and therefore receiving events
+ * 
+ * @return {Boolean}
+ * @api public
+ */
+
+ContextMenu.prototype.hasFocus = function () {
+	return this.classList.has('focused')
+}
+
+
+/**
  * Get the most focused item
+ * 
  * @return {Item}
+ * @api private
  */
 
 ContextMenu.prototype.focusedItem = function () {
@@ -223,6 +245,9 @@ ContextMenu.prototype.focusedItem = function () {
 
 /**
  * Get the most focused menu
+ * 
+ * @return {Menu}
+ * @api private
  */
 
 ContextMenu.prototype.focusedMenu = function () {
@@ -232,7 +257,9 @@ ContextMenu.prototype.focusedMenu = function () {
 
 /**
  * List all Items that are in a focused state
+ * 
  * @return {Array} of Items
+ * @api private
  */
 
 ContextMenu.prototype.getFocused = function () {
@@ -249,6 +276,7 @@ ContextMenu.prototype.getFocused = function () {
 
 /**
  * Shift focus to the item above the currently focused one
+ * @api public
  */
 
 ContextMenu.prototype.up = function () {
@@ -257,6 +285,7 @@ ContextMenu.prototype.up = function () {
 
 /**
  * Shift focus to the item below the currently selected one
+ * @api public
  */
 
 ContextMenu.prototype.down = function () {
@@ -265,7 +294,9 @@ ContextMenu.prototype.down = function () {
 
 /**
  * Convert a left or right command into the appropriate action
- * @param {String} direction of the command
+ * 
+ * @param {String} left/right
+ * @api public
  */
 
 ContextMenu.prototype.navigate = function (direction) {
@@ -325,7 +356,9 @@ ContextMenu.prototype.navigate = function (direction) {
 
 /**
  * Ensure the ContextMenu has keyboard focus so it can receive keyboard events
- * @return {Self}
+ * 
+ * @return {this}
+ * @api public
  */
 
 ContextMenu.prototype.activate = function () {
@@ -341,7 +374,9 @@ ContextMenu.prototype.activate = function () {
 
 /**
  * Remove focus so the ContextMenu no longer receives keyboard events
- * @return {Self}
+ * 
+ * @return {this}
+ * @api public
  */
 
 ContextMenu.prototype.deactivate = function () {
@@ -351,6 +386,7 @@ ContextMenu.prototype.deactivate = function () {
 
 /**
  * Toggle the selection state of the currently focused item
+ * @api private
  */
 
 ContextMenu.prototype.toggleSelect = function () {
@@ -359,6 +395,9 @@ ContextMenu.prototype.toggleSelect = function () {
 
 /**
  * Insert the context menu and show it
+ * 
+ * @return {this}
+ * @api public
  */
 
 ContextMenu.prototype.show = function (x, y) {
@@ -367,15 +406,29 @@ ContextMenu.prototype.show = function (x, y) {
 	this.menu.show()
 	this.menu.focus()
 	this.activate()
+	return this
 }
+
+/**
+ * set location
+ * 
+ * @param {Number} x
+ * @param {Number} y
+ * @return {this}
+ * @api public
+ */
 
 ContextMenu.prototype.target = function (x, y) {
 	this.view.style.left = x+'px'
 	this.view.style.top = y+'px'
+	return this
 }
 
 /**
  * Terminate the ContextMenu
+ * 
+ * @return {this}
+ * @api public
  */
 
 ContextMenu.prototype.remove = function () {
@@ -384,4 +437,5 @@ ContextMenu.prototype.remove = function () {
 	this.deactivate()
 	this.clear()
 	this.view.parentElement.removeChild(this.view)
+	return this
 }

@@ -1,8 +1,12 @@
-var Item = require('./item')
+
+var style = require('computed-style')
   , Satellite = require('satellite')
+  , inherit = require('inherit')
+  , detect = require('detect')
+  , Item = require('./item')
+  , max = require('max')
+  , sum = require('sum')
   , css = require('css')
-  , style = require('computed-style')
-  , enumerable = require('enumerable')
 
 exports = module.exports = Menu
 
@@ -10,72 +14,81 @@ function Menu () {
 	Satellite.call(this, require('./template'))
 	this.classList.add('menu')
 	this.prefer('north east')
-	this.items = enumerable([])
+	this.items = []
 	this.lens = this.view.querySelector('.lens')
-	this.on('show')
-	this.on('hide')
+	this.events.on('show')
+	this.events.on('hide')
 }
 
 /**
  * Inherit from Satellite
  */
-var proto = Menu.prototype = Object.create(Satellite.prototype)
-proto.constructor = Menu
 
+inherit(Menu, Satellite)
+	
 /**
  * Insert a new Item instance
  *
  * @param {Item} item
  * @return {Self}
  */
-proto.insert = function (item) {
-	this.items.add(item)
+
+Menu.prototype.insert = function (item) {
+	this.items.push(item)
 	this.view.appendChild(item.view)
 	var self = this
-	item.on('focused', function () {
-		self.showLens()
-		self.setLens(item)
-	})
-	item.on('blurred', function () {
-		if (!self.focusedItem())
-			self.hideLens()
-	})
-	this.emit('add', {item:item})
+	item.events
+		.on('focused', function () {
+			self.showLens()
+			self.setLens(item)
+		})
+		.on('blurred', function () {
+			if (!self.focusedItem())
+				self.hideLens()
+		})
+	this.events.emit('add', {item:item})
 	return this
 }
 
-/*!
- * Allow enumerable to handle NodeLists
- */
-enumerable.implement(NodeList)
-
 /**
  * Since the actual Contextmenu node has no size the menus will try and be as skinny 
- * as possible. This is undesirable since menu items should usually not be broken 
- * into several lines. To fix this we must set the menus width explicitly.
+ * as possible. So we set the menus width explicitly
  */
-proto.onShow = function (e) {
+
+Menu.prototype.onShow = function (e) {
 	e.stopPropagation()
+	// ensure visible
 	css(this.view, {visibility:'visible'})
-	var max = this.items.max(function (item) {
-		return enumerable(item.view.childNodes).sum(function (child) {
-			var css = style(child)
-			if (css.position !== 'static') return 0
-			return (parseFloat(css.marginRight) || 0)
-				+ (parseFloat(css.marginLeft)  || 0)
-				+ child.offsetWidth
-		})
+	// biggest item
+	var width = max(this.items, function(item){
+		return sum(item.view.childNodes, elWidth)
 	})
-	max += 'px'
-	this.items.each(function (item) {
-		item.view.style.width = max
+	this.items.forEach(function(item){
+		item.view.style.width = width + 'px'
 	})
+}
+
+/**
+ * calculate the width of `el`
+ * 
+ * @param {Element} child
+ * @return {Number}
+ * @api private
+ */
+
+function elWidth(child){
+	var css = style(child)
+	if (css.position != 'static') return 0
+	return (parseFloat(css.marginRight) || 0)
+		+ (parseFloat(css.marginLeft)  || 0)
+		+ child.offsetWidth
 }
 
 /**
  * Elements need to be properly hidden in order to prevent events being fired on them unexpectedly
  */
-proto.onHide = function (e) {
+
+Menu.prototype.onHide = function (e) {
 	e.stopPropagation()
 	css(this.view, {visibility:'hidden'})
 }
@@ -84,34 +97,36 @@ proto.onHide = function (e) {
  * Ensure at least one item has focus
  * @return {Self}
  */
-proto.focus = function () {
-	if (!this.focusedItem())
-		this.items.at(0).focus()
+
+Menu.prototype.focus = function () {
+	if (!this.focusedItem()) this.items[0].focus()
 }
 
 /**
  * Shift focus to the item before the focused item
  */
-proto.prev = function () {
+
+Menu.prototype.prev = function () {
 	var item = this.focusedItem()
 	var i = this.items.indexOf(item)
 	var next = Math.max(0, i - 1)
 	if (i !== next) {
 		item.blur()
-		this.items.at(next).focus()
+		this.items[next].focus()
 	}
 }
 
 /**
  * Shift focus to the item after the focused item
  */
-proto.next = function () {
+
+Menu.prototype.next = function () {
 	var item = this.focusedItem()
 	var i = this.items.indexOf(item)
-	var next = Math.min(this.items.length() - 1, i + 1)
+	var next = Math.min(this.items.length - 1, i + 1)
 	if (i !== next) {
 		item.blur()
-		this.items.at(next).focus()
+		this.items[next].focus()
 	}
 }
 
@@ -120,7 +135,8 @@ proto.next = function () {
  *
  * @return {Boolean}
  */
-proto.isVisible = function () {
+
+Menu.prototype.isVisible = function () {
 	return !this.classList.has('satellite-hide')
 }
 
@@ -133,7 +149,8 @@ proto.isVisible = function () {
  * @param {String} [icon] path to an image
  * @return {Self}
  */
-proto.item = function(title, icon) {
+
+Menu.prototype.item = function(title, icon) {
 	return this.insert(new Item(this, {title:title, icon:icon}))
 }
 
@@ -143,7 +160,8 @@ proto.item = function(title, icon) {
  * @see #item()
  * @return {Menu} the submenu of the newly created item 
  */
-proto.submenu = function (title, icon) {
+
+Menu.prototype.submenu = function (title, icon) {
 	var item = new Item(this, {title:title, icon: icon})
 	item.menu = new Menu
 	item.menu.parent = item
@@ -161,7 +179,8 @@ proto.submenu = function (title, icon) {
  *
  * @return {Item}
  */
-proto.newItem = function () {
+
+Menu.prototype.newItem = function () {
 	return new Item(this)
 }
 
@@ -171,7 +190,8 @@ proto.newItem = function () {
  * @param {Item} item
  * @return {Self}
  */
-proto.setLens = function (item) {
+
+Menu.prototype.setLens = function (item) {
 	var target = item.view
 	css(this.lens, {
 		top: target.offsetTop,
@@ -184,7 +204,8 @@ proto.setLens = function (item) {
  * Show the menu's lens
  * @return {Self}
  */
-proto.showLens = function () {
+
+Menu.prototype.showLens = function () {
 	css(this.lens, {visibility: 'visible'})
 	return this
 }
@@ -193,7 +214,8 @@ proto.showLens = function () {
  * Hide the menu's lens
  * @return {Self}
  */
-proto.hideLens = function () {
+
+Menu.prototype.hideLens = function () {
 	css(this.lens, {visibility: 'hidden'})
 	return this
 }
@@ -203,8 +225,9 @@ proto.hideLens = function () {
  *
  * @return {Item}
  */
-proto.focusedItem = function () {
-	return this.items.find(function (item) {
+
+Menu.prototype.focusedItem = function () {
+	return detect(this.items, function(item){
 		return item.isFocused()
 	})
 }
@@ -214,8 +237,11 @@ proto.focusedItem = function () {
  * 
  * @return {Self}
  */
-proto.remove = function() {
-	this.items.each('remove')
+
+Menu.prototype.remove = function() {
+	this.items.forEach(function(item){
+		item.remove()
+	})
 	Satellite.prototype.remove.call(this)
 	return this
 }

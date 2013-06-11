@@ -1,20 +1,22 @@
-all: build Readme.md
+REPORTER=dot
+
+serve: node_modules
+	@node_modules/serve/bin/serve
+
+test:
+	@node_modules/mocha/bin/_mocha test/*.test.js \
+		--reporter $(REPORTER) \
+		--timeout 500 \
+		--check-leaks \
+		--bail
+
+node_modules: component.json
+	@packin install --meta deps.json,component.json,package.json \
+		--folder node_modules \
+		--executables \
+		--no-retrace
 
 clean:
-	@rm -rf build components
+	rm -r node_modules
 
-install:
-	@component install
-
-build:
-	@component build -d -v
-
-Readme.md: src/index.js docs/head.md docs/tail.md
-	@cat docs/head.md > Readme.md
-	@cat src/index.js\
-	 | sed s/.*=.$$//\
-	 | sed s/proto\./ContextMenu.prototype./\
-	 | dox -a >> Readme.md
-	@cat docs/tail.md >> Readme.md
-
-.PHONY: build clean install
+.PHONY: clean serve test

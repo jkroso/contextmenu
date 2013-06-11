@@ -1,17 +1,20 @@
 {
   "name": "contextmenu",
   "description": "A contextmenu interface",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "dependencies": {
-    "jkroso/domify": "*",
-    "component/classes": "*",
-    "jkroso/dom-event": "*",
-    "jkroso/dom-emitter": "*",
-    "component/css": "*",
-    "jkroso/enumerable": "*",
-    "jkroso/satellite": "*",
-    "jkroso/computed-style": "*",
-    "jkroso/position": "*"
+    "jkroso/sum": "0.2.1",
+    "jkroso/detect": "0.3.1",
+    "jkroso/domify": "0.1.1",
+    "jkroso/position": "0.1.0",
+    "jkroso/dom-event": "0.3.1",
+    "jkroso/satellite": "0.1.1",
+    "jkroso/dom-emitter": "0.6.0",
+    "jkroso/computed-style": "0.1.0",
+    "component/classes": "1.1.1",
+    "component/css": "0.0.2",
+    "component/inherit": "0.0.2",
+    "component/max": "1.0.0"
   },
   "scripts": [
     "src/menu/index.js",
@@ -26,5 +29,8 @@
     "src/menu/menu.css",
     "src/contextmenu.css"
   ],
-  "main": "src/index.js"
+  "main": "src/index.js",
+  "development": {
+    "jkroso/serve": "1.2.4"
+  }
 }

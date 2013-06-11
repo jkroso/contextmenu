@@ -1,3 +1,4 @@
+
 var domify = require('domify')
   , classes = require('classes')
   , DomEmitter = require('dom-emitter')
@@ -12,14 +13,15 @@ module.exports = Item
  * @event focused when the item is switched to a focused state
  * @event blurred when the item looses its focused state
  */
+
 function Item (menu, options) {
 	this.parent = menu
-	this.view = domify(require('./template'))[0]
+	this.view = domify(require('./template'))
 	this.classList = classes(this.view)
-	DomEmitter.call(this)
-	this.on('mousedown')
-	this.on('mouseover')
-	this.on('mouseout')
+	this.events = new DomEmitter(this.view, this)
+		.on('mousedown')
+		.on('mouseover')
+		.on('mouseout')
 	if (options) {
 		options.title && this.title(options.title)
 		options.icon && this.icon(options.icon)
@@ -27,25 +29,21 @@ function Item (menu, options) {
 }
 
 /**
- * Inherit from Emitter
- */
-var proto = Item.prototype = Object.create(DomEmitter.prototype)
-proto.constructor = Item
-
-/**
  * Set the item to selected state and emit and event
  * @return {Self}
  */
-proto.select = function () {
+
+Item.prototype.select = function () {
 	this.classList.add('selected')
-	this.emit('select', {view:this})
+	this.events.emit('select', {view:this})
 	return this
 }
 
 /**
  * Mouse down will be interpreted as a select request
  */
-proto.onMousedown = function (e) {
+
+Item.prototype.onMousedown = function (e) {
 	e.stopPropagation()
 	e.preventDefault()
 	this.toggleSelect()	
@@ -54,17 +52,19 @@ proto.onMousedown = function (e) {
 /**
  * Determine if it was a hover action
  */
-proto.onMouseover = function (e) {
+
+Item.prototype.onMouseover = function (e) {
 	if (e.target === this.view && !isIn(e.relatedTarget, this.view))
-		this.emit('hover', {view:this})
+		this.events.emit('hover', {view:this})
 }
 
 /**
  * Determine if it was a leave action
  */
-proto.onMouseout = function (e) {
+
+Item.prototype.onMouseout = function (e) {
 	if (e.target === this.view && !isIn(e.relatedTarget, this.view))
-		this.emit('leave', {view:this})
+		this.events.emit('leave', {view:this})
 }
 
 function isIn (child, parent) {
@@ -79,7 +79,8 @@ function isIn (child, parent) {
  * Negate the items selection state
  * @return {Self}
  */
-proto.toggleSelect = function() {
+
+Item.prototype.toggleSelect = function() {
 	return this[
 		this.isSelected()
 			? 'deselect' 
@@ -91,9 +92,10 @@ proto.toggleSelect = function() {
  * Remove select state an emit an event
  * @return {Self}
  */
-proto.deselect = function () {
+
+Item.prototype.deselect = function () {
 	this.classList.remove('selected')
-	this.emit('deselect', {view:this})
+	this.events.emit('deselect', {view:this})
 	return this
 }
 
@@ -101,7 +103,8 @@ proto.deselect = function () {
  * Get focus state
  * @return {Boolean}
  */
-proto.isSelected = function () {
+
+Item.prototype.isSelected = function () {
 	return this.classList.has('selected')
 }
 
@@ -109,10 +112,11 @@ proto.isSelected = function () {
  * Add focused state and emit event
  * @return {Self}
  */
-proto.focus = function () {
+
+Item.prototype.focus = function () {
 	if (!this.isFocused()) {
 		this.classList.add('focused')
-		this.emit('focused', {view:this})
+		this.events.emit('focused', {view:this})
 	}
 	return this
 }
@@ -121,7 +125,8 @@ proto.focus = function () {
  * Get focus state
  * @return {Boolean}
  */
-proto.isFocused = function () {
+
+Item.prototype.isFocused = function () {
 	return this.classList.has('focused')
 }
 
@@ -129,10 +134,11 @@ proto.isFocused = function () {
  * Remove focus state and emit an event
  * @return {Self}
  */
-proto.blur = function() {
+
+Item.prototype.blur = function() {
 	if (this.isFocused()) {
 		this.classList.remove('focused')
-		this.emit('blurred', {view:this})
+		this.events.emit('blurred', {view:this})
 	}
 	return this
 }
@@ -146,7 +152,8 @@ proto.blur = function() {
  * @param {String} [title] the title to set
  * @return {String|Self}
  */
-proto.title = function (string) {
+
+Item.prototype.title = function (string) {
 	this.slug = createSlug(string)
 	var title = this.view.querySelector('.title')
 	if (string != null) {
@@ -164,7 +171,8 @@ proto.title = function (string) {
  * @param {String} path
  * @return {Self}
  */
-proto.icon = function(path) {
+
+Item.prototype.icon = function(path) {
 	var icon = this.view.querySelector('.icon')
 	var img = document.createElement('img')
 	img.src = path
@@ -176,7 +184,8 @@ proto.icon = function(path) {
 /**
  * Show the submenu associated with this item
  */
-proto.open = function () {
+
+Item.prototype.open = function () {
 	if (this.menu) {
 		this.menu.show()
 	}
@@ -185,7 +194,8 @@ proto.open = function () {
 /**
  * Hide the submenu associated with this item
  */
-proto.close = function () {
+
+Item.prototype.close = function () {
 	if (this.menu) this.menu.hide()
 }
 
@@ -193,7 +203,8 @@ proto.close = function () {
  * Insert the item into its designated parent
  * @return {Menu} the containing menu
  */
-proto.end = function() {
+
+Item.prototype.end = function() {
 	return this.parent.add(this)
 }
 
@@ -201,7 +212,8 @@ proto.end = function() {
  * Terminate the item
  * @return {Self}
  */
-proto.remove = function() {
+
+Item.prototype.remove = function() {
 	this.clear()
 	return this
 }

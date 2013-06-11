@@ -1,9 +1,10 @@
+
 var Menu = require('./menu')
-  , DomEmitter = require('dom-emitter')
   , customEvent = require('dom-event').custom
-  , domify = require('domify')
-  , classes = require('classes')
+  , DomEmitter = require('dom-emitter')
   , position = require('position')
+  , classes = require('classes')
+  , domify = require('domify')
 
 exports = module.exports = ContextMenu
 
@@ -15,23 +16,24 @@ exports = module.exports = ContextMenu
  * @param {Element} target where to send the command
  * @return {ContextMenu}
  */
+
 function ContextMenu (target) {
 	ContextMenu.instances.push(this)
 	this.targetNode = target
-	this.view = domify(require('./template'))[0]
+	this.view = domify(require('./template'))
 	this.classList = classes(this.view)
-	DomEmitter.call(this)
-	this.on('keydown')
-	this.on('mousedown')
-	this.on('hover .item')
-	this.on('leave .item')
-	this.on('click')
-	this.on('mouseover', 'activate')
-	this.on('focusin')
-	this.on('focusout')
-	this.on('focused .item')
-	this.on('blurred .item')
-	this.on('select')
+	this.events = new DomEmitter(this.view, this)
+		.on('keydown')
+		.on('mousedown')
+		.on('hover .item')
+		.on('leave .item')
+		.on('click')
+		.on('mouseover', 'activate')
+		.on('focusin')
+		.on('focusout')
+		.on('focused .item')
+		.on('blurred .item')
+		.on('select')
 	this.menu = new Menu()
 		.appendTo(this.view)
 		.orbit(this.view)
@@ -41,11 +43,13 @@ function ContextMenu (target) {
 /**
  * Holds all instances
  */
+
 ContextMenu.instances = []
 
 /**
  * Remove all instances from the display
  */
+
 ContextMenu.clear = function () {
 	ContextMenu.instances.forEach(function (menu) {
 		menu.remove()
@@ -54,30 +58,32 @@ ContextMenu.clear = function () {
 }
 
 /**
- * Alternative constructor syntax
- */
-ContextMenu.new = function (target) {
-	return new this(target)
-}
-
-var proto = ContextMenu.prototype = Object.create(DomEmitter.prototype)
-proto.constructor = ContextMenu
-
-/**
  * Forward the item menu building functions on to the menu
  */
-proto.item = function () {
+
+ContextMenu.prototype.item = function () {
 	this.menu.item.apply(this.menu, arguments)
 	return this
 }
-proto.submenu = function () {
+
+/**
+ * create a submenu
+ * @return {Menu}
+ */
+
+ContextMenu.prototype.submenu = function () {
 	var menu = this.menu.submenu.apply(this.menu, arguments)
 	var self = this
-	menu.pop = function () {return self}
+	menu.pop = function () { return self }
 	return menu
 }
 
-proto.onSelect = function (e) {
+/**
+ * "select" event handler
+ * @param {Event} e
+ */
+
+ContextMenu.prototype.onSelect = function (e) {
 	var item = e.view
 	var topic = [item.title()]
 	var menu = item.parent
@@ -95,21 +101,24 @@ proto.onSelect = function (e) {
 /**
  * Handle an item being focused
  */
-proto.onFocused = function (e) {
+
+ContextMenu.prototype.onFocused = function (e) {
 	e.view.menu && e.view.open()
 }
 
 /**
  * Handle an item loosing focus
  */
-proto.onBlurred = function (e) {
+
+ContextMenu.prototype.onBlurred = function (e) {
 	e.view.menu && e.view.close()
 }
 
 /**
- * Handle the mouse entering an item
+ * "hover" event handler
  */
-proto.onHover = function (e) {
+
+ContextMenu.prototype.onHover = function (e) {
 	var top = e.view.parent.focusedItem()
 	// If an item in the current menu is selected...
 	if (top) {
@@ -128,14 +137,16 @@ proto.onHover = function (e) {
 /**
  * Handle the mouse leaving an item
  */
-proto.onLeave = function (e) {
+
+ContextMenu.prototype.onLeave = function (e) {
 	e.view.blur()
 }
 
 /**
  * Translate the keypress into a command
  */
-proto.onKeydown = function (e) {
+
+ContextMenu.prototype.onKeydown = function (e) {
 	// Stop scrolling and page refreshes
 	e.preventDefault()
 	switch (e.which) {
@@ -155,8 +166,9 @@ proto.onKeydown = function (e) {
 /**
  * Prevent default behaviors
  */
-proto.onClick =
-proto.onMousedown = function (e) {
+
+ContextMenu.prototype.onClick =
+ContextMenu.prototype.onMousedown = function (e) {
 	e.preventDefault()
 }
 
@@ -164,14 +176,16 @@ proto.onMousedown = function (e) {
  * Check if the ContextMenu is currently focused and therefore receiving events
  * @return {Boolean}
  */
-proto.hasFocus = function () {
+
+ContextMenu.prototype.hasFocus = function () {
 	return this.classList.has('focused')
 }
 
 /**
  * Transfer focus to the item being hovered over
  */
-proto.onMouseover = function (e) {
+
+ContextMenu.prototype.onMouseover = function (e) {
 	var target = e.delegateTarget
 
 	if (target && target !== this.focusedItem())
@@ -181,7 +195,8 @@ proto.onMouseover = function (e) {
 /**
  * Set focus state
  */
-proto.onFocusin = function (e) {
+
+ContextMenu.prototype.onFocusin = function (e) {
 	if (!this.focusedItem) this.focusedItem = this.menu.list.at(0)
 	this.classList.add('focused')
 	console.log('focus in')
@@ -190,7 +205,8 @@ proto.onFocusin = function (e) {
 /**
  * Remove focus state
  */
-proto.onFocusout = function (e) {
+
+ContextMenu.prototype.onFocusout = function (e) {
 	this.classList.remove('focused')
 	console.log('focus out')
 }
@@ -199,7 +215,8 @@ proto.onFocusout = function (e) {
  * Get the most focused item
  * @return {Item}
  */
-proto.focusedItem = function () {
+
+ContextMenu.prototype.focusedItem = function () {
 	var list = this.getFocused()
 	return list[list.length - 1]
 }
@@ -207,7 +224,8 @@ proto.focusedItem = function () {
 /**
  * Get the most focused menu
  */
-proto.focusedMenu = function () {
+
+ContextMenu.prototype.focusedMenu = function () {
 	var item = this.focusedItem()
 	return item && item.parent
 }
@@ -216,7 +234,8 @@ proto.focusedMenu = function () {
  * List all Items that are in a focused state
  * @return {Array} of Items
  */
-proto.getFocused = function () {
+
+ContextMenu.prototype.getFocused = function () {
 	var menu = this.menu
 	var res = []
 	while (menu) {
@@ -231,14 +250,16 @@ proto.getFocused = function () {
 /**
  * Shift focus to the item above the currently focused one
  */
-proto.up = function () {
+
+ContextMenu.prototype.up = function () {
 	this.focusedMenu().prev()
 }
 
 /**
  * Shift focus to the item below the currently selected one
  */
-proto.down = function () {
+
+ContextMenu.prototype.down = function () {
 	this.focusedMenu().next()
 }
 
@@ -246,7 +267,8 @@ proto.down = function () {
  * Convert a left or right command into the appropriate action
  * @param {String} direction of the command
  */
-proto.navigate = function (direction) {
+
+ContextMenu.prototype.navigate = function (direction) {
 	var item = this.focusedItem()
 	// Is there a submenu available
 	if (item.menu && item.menu.isVisible()) {
@@ -305,7 +327,8 @@ proto.navigate = function (direction) {
  * Ensure the ContextMenu has keyboard focus so it can receive keyboard events
  * @return {Self}
  */
-proto.activate = function () {
+
+ContextMenu.prototype.activate = function () {
 	if (!this.hasFocus()) {
 		var x = window.scrollX
 		  , y = window.scrollY
@@ -320,7 +343,8 @@ proto.activate = function () {
  * Remove focus so the ContextMenu no longer receives keyboard events
  * @return {Self}
  */
-proto.deactivate = function () {
+
+ContextMenu.prototype.deactivate = function () {
 	this.view.blur()
 	return this
 }
@@ -328,14 +352,16 @@ proto.deactivate = function () {
 /**
  * Toggle the selection state of the currently focused item
  */
-proto.toggleSelect = function () {
+
+ContextMenu.prototype.toggleSelect = function () {
 	this.focusedItem().toggleSelect()
 }
 
 /**
  * Insert the context menu and show it
  */
-proto.show = function (x, y) {
+
+ContextMenu.prototype.show = function (x, y) {
 	document.body.appendChild(this.view)
 	if (x != null) this.target.apply(this, arguments)
 	this.menu.show()
@@ -343,7 +369,7 @@ proto.show = function (x, y) {
 	this.activate()
 }
 
-proto.target = function (x, y) {
+ContextMenu.prototype.target = function (x, y) {
 	this.view.style.left = x+'px'
 	this.view.style.top = y+'px'
 }
@@ -351,7 +377,8 @@ proto.target = function (x, y) {
 /**
  * Terminate the ContextMenu
  */
-proto.remove = function () {
+
+ContextMenu.prototype.remove = function () {
 	var self = this
 	exports.instances = exports.instances.filter(function (i) {return i !== self}) 
 	this.deactivate()

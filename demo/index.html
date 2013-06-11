@@ -1,13 +1,13 @@
 <!doctype html>
 <html>
 	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 		<title>ContextMenu</title>
 		<link rel="stylesheet" href="../build/build.css">
 	</head>
 	<body>
-		<script src="../build/build.js"></script>
 		<script>
-			var ContextMenu = require('contextmenu');
+			var ContextMenu = require('..');
 
 			var menu = new ContextMenu(document.body)
 			menu.item('one', 'images/cut.png')
@@ -34,7 +34,7 @@
 			document.addEventListener('contextmenu', function (e) {
 				e.preventDefault()
 				ContextMenu.clear()
-				ContextMenu.new(document.body)
+				new ContextMenu(document.body)
 					.item('Cut', 'images/cut.png')
 					.submenu('Submenu a')
 						.item('item b')

@@ -101,7 +101,8 @@ ContextMenu.prototype.onSelect = function (e) {
 		topic.unshift(item.title())
 	}
 	this.targetNode.dispatchEvent(customEvent(
-		topic.join('/').toLowerCase()
+		topic.join('/').toLowerCase(),
+		{}
 	))
 	this.remove()
 }

@@ -4,6 +4,7 @@
   "version": "0.1.0",
   "dependencies": {
     "jkroso/sum": "0.2.1",
+    "jkroso/text": "0.0.1",
     "jkroso/detect": "0.3.1",
     "jkroso/domify": "0.1.1",
     "jkroso/position": "0.1.0",
@@ -14,8 +15,7 @@
     "component/classes": "1.1.2",
     "component/css": "0.0.2",
     "component/inherit": "0.0.2",
-    "component/max": "1.0.0",
-    "matthewp/text": "master"
+    "component/max": "1.0.0"
   },
   "scripts": [
     "src/menu/index.js",

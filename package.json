@@ -1,14 +1,11 @@
 {
-	"name": "ContextMenu",
-	"title": "ContextMenu",
+	"name": "contextmenu",
 	"version": "0.1.0",
 	"author": {
 		"name": "Jakeb Rosoman",
 		"email": "jkroso@gmail.com"
 	},
-	"devDependencies": {
-		"handlebars": "*"
-	},
+	"devDependencies": {},
 	"dependencies": {},
 	"keywords": []
 }

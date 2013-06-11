@@ -1,7 +1,7 @@
 {
   "name": "contextmenu",
   "description": "A contextmenu interface",
-  "version": "0.0.2",
+  "version": "0.1.0",
   "dependencies": {
     "jkroso/sum": "0.2.1",
     "jkroso/detect": "0.3.1",
